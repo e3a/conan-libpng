@@ -1,0 +1,18 @@
+sudo: required 
+language: cpp
+services:
+  - docker
+env:
+  global:
+    secure: "JMQ86g7owAdNsoqB/n+cVA+0MoCEUxZiZLlpPXPo7mXV3NPPKZboJ/WorlZq7g0WuJaVkFsmy82TXkS5lD3bsqC267CZr+B2I9rYYeSEr0SvXPKmgGKMTBTnlk3Hktw49pBT4hiDIQds9JH6Apuh4DIN2nQ4t2d7U3Qc994tamUC4+CL0anGprnndCZxKXsSKfx1iV1AWOSzMXxCOwdP9wbRXy1114aJVT4Lo1ff7X3aPkT7y7TeL5RaGRU1cY5wrD/oZg0WpQNMQsnFpujpiYzx/e8wlIDLuFIIYXZZ4gvQ6lJejYNv+i8DlMt/7WDYPxhhmaLEhpUDubhKHRU7mMnUxiq9Y4zS+ywGxhS72Ul7GJnEFSyrpjr7bpmKUAWAbD3AVjtcliwun30h9SHOe6oi0aXBI8KJ27Mu0BQKRlSetMjzT2icG/s21s6i2jMdZB+CNLuNbs3rz49YTABMzXFmBBZJYrA1eWwEmwrAKVtgw1YGzo2V30mAyXNdSIzQUyJ0S5g7NjoErT5sAWAcB+XommVaQHSvtBqAUzJ4j2fF5DFhPCCzlyCaV9V9aWyUZEKfFQo+avK7OiXvEUJEF+/gU8xptH0+7CxlAyTvSlpmJM/jFqsksh8ZLzs6kAVR12OWlyv4JV6+6Qgv0bxHA1RyJ3ka2+0vTN6ZsDrEA4g=" #BINTRAY_KEY
+
+before_install:
+  - mkdir $(pwd)/build
+  - docker pull spielhuus/toolchain:latest
+script:
+  - sudo docker run -itd -v $(pwd)/repo:/repo --name conan_build spielhuus/toolchain /bin/bash 
+  - sudo docker exec conan_build /bin/bash -c "git clone https://github.com/e3a/conan-libpng.git /repo"
+  - sudo docker exec conan_build /bin/bash -c "conan user -p $BINTRAY_KEY -r conan-cpp squawkcpp"
+  - sudo docker exec conan_build /bin/bash -c "cd /repo && conan export conan-cpp/latest && conan install libpng/1.6.34@conan-cpp/latest --build=libpng && conan upload libpng/1.6.34@conan-cpp/latest --all -r=conan-cpp"
+  - sudo docker rm -f conan_build
+
