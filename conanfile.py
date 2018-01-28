@@ -51,5 +51,5 @@ class PopplerConan(ConanFile):
             self.copy(pattern="*.a", dst="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ["png"]
+        self.cpp_info.libs = ["png16"]
 
